@@ -1,11 +1,8 @@
-#![allow(unused)]
-
 use app::{App, Commands};
 use clap::Parser;
 
-use store::{DataStore, Date, ReadQuery, Subject, WriteQuery, DateRange};
-
-use crate::{errors::DataStoreError, store::Entry};
+use errors::DataStoreError;
+use store::{DataStore, Date, DateRange, Entry, ReadQuery, Subject, WriteQuery};
 
 mod app;
 mod errors;
@@ -16,8 +13,7 @@ fn main() {
 
   match &app.command {
     Commands::Add { date, subjects } => {
-      let date = Date::try_from(date.clone())
-        .expect("Invalid date format");
+      let date = Date::try_from(date.clone()).expect("Invalid date format");
       let res = DataStore::write(WriteQuery::AtDate(
         date,
         subjects
@@ -36,25 +32,24 @@ fn main() {
         handle_print_list(DataStore::read(ReadQuery::All));
       }
       app::ListMode::Date { date } => {
-        let date = Date::try_from(date.clone())
-          .expect("Invalid date format");
+        let date = Date::try_from(date.clone()).expect("Invalid date format");
         handle_print_list(DataStore::read(ReadQuery::ByDate(date)));
       }
       app::ListMode::Range { range } => {
         let range = DateRange::try_from(range.clone()).expect("Invalid range format");
         handle_print_list(DataStore::read(ReadQuery::ByRange(range)));
-      },
+      }
       app::ListMode::Subject { subject } => {
         let subject = Subject::try_from(subject.to_owned());
         match subject {
           Ok(sub) => {
             handle_print_list(DataStore::read(ReadQuery::BySubject(sub)));
-          },
+          }
           Err(e) => {
             panic!("Encountered error while listing by subject: {:?}", e)
           }
         }
-      },
+      }
     },
   }
   fn handle_print_list(res: Result<Vec<Entry>, DataStoreError>) {
