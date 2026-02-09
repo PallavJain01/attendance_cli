@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use app::{App, Commands};
 use clap::Parser;
 
